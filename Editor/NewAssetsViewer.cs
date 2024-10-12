@@ -77,8 +77,7 @@ public class NewAssetsViewer : EditorWindow
 
     private void DrawTimeRangeSelector()
     {
-        EditorGUILayout.LabelField("表示する範囲を指定", EditorStyles.boldLabel);
-        selectedTimeRange = (TimeRange)EditorGUILayout.EnumPopup("範囲", selectedTimeRange);
+        selectedTimeRange = (TimeRange)EditorGUILayout.EnumPopup("表示する範囲", selectedTimeRange);
 
         if (GUILayout.Button("更新！"))
         {
