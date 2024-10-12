@@ -23,5 +23,5 @@ NewAssetsViewerは、Unityプロジェクト内で最近作成されたアセッ
 
 ## ライセンス
 
-MITです。表示が必要な場合は以下を参考にどうぞ。 Copyright (c) 2023 KRHa Released under the MIT license
+MITです。表示が必要な場合は以下を参考にどうぞ。 Copyright (c) 2024 KRHa Released under the MIT license
 https://opensource.org/licenses/mit-license.php
