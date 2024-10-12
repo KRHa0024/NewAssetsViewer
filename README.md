@@ -1,6 +1,6 @@
-# New Assets Viewer
+# NewAssetsViewer
 
-New Assets Viewerは、Unityプロジェクト内で最近作成されたアセットを表示するエディタ拡張機能です。以下の機能を提供します。
+NewAssetsViewerは、Unityプロジェクト内で最近作成されたアセットを表示するエディタ拡張機能です。以下の機能を提供します。
 
 ## 機能
 
