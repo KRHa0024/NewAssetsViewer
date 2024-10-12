@@ -49,7 +49,7 @@ public class NewAssetsViewer : EditorWindow
 
     private void DrawSortOrderSelector()
     {
-        selectedSortOrder = (SortOrder)EditorGUILayout.EnumPopup("並び順", selectedSortOrder);
+        selectedSortOrder = (SortOrder)EditorGUILayout.EnumPopup("並べ替え", selectedSortOrder);
 
         if (selectedSortOrder != treeView.SortOrder)
         {
