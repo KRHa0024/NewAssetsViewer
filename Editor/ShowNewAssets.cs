@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.IO;
+using System.Linq;
 using UnityEditor;
 using UnityEditor.IMGUI.Controls;
 using UnityEngine;
@@ -10,27 +10,27 @@ public class ShowNewAssets : EditorWindow
 {
     private enum TimeRange
     {
-        Last30Minutes,
-        Today,
-        SinceYesterday,
-        LastWeek,
+        直近30分,
+        直近24時間,
+        昨日から,
+        先週から,
     }
 
     public enum SortOrder
     {
-        CreationTime,
-        Name
+        作成日時,
+        名前,
     }
 
-    private SortOrder selectedSortOrder = SortOrder.CreationTime;
-    private TimeRange selectedTimeRange = TimeRange.Today;
+    private SortOrder selectedSortOrder = SortOrder.作成日時;
+    private TimeRange selectedTimeRange = TimeRange.直近24時間;
     private AssetTreeView treeView;
     private SearchField searchField;
 
-    [MenuItem("くろ～は/新規アセットを表示するヤツ")]
+    [MenuItem("くろ～は/New Assets Viewer")]
     public static void ShowWindow()
     {
-        GetWindow<ShowNewAssets>("新規アセットを表示するヤツ");
+        GetWindow<ShowNewAssets>("New Assets Viewer");
     }
 
     private void OnEnable()
@@ -95,11 +95,11 @@ public class ShowNewAssets : EditorWindow
         DateTime referenceTime = GetReferenceTime();
         var newAssets = GetNewAssets(referenceTime);
 
-        if (selectedSortOrder == SortOrder.CreationTime)
+        if (selectedSortOrder == SortOrder.作成日時)
         {
-            newAssets = newAssets.OrderBy(GetAssetCreationTime).ToList();
+            newAssets = newAssets.OrderByDescending(GetAssetCreationTime).ToList();
         }
-        else if (selectedSortOrder == SortOrder.Name)
+        else if (selectedSortOrder == SortOrder.名前)
         {
             newAssets = newAssets.OrderBy(Path.GetFileName).ToList();
         }
@@ -125,16 +125,16 @@ public class ShowNewAssets : EditorWindow
 
         switch (selectedTimeRange)
         {
-            case TimeRange.Last30Minutes:
+            case TimeRange.直近30分:
                 referenceTime = referenceTime.AddMinutes(-30);
                 break;
-            case TimeRange.Today:
-                referenceTime = DateTime.Today;
+            case TimeRange.直近24時間:
+                referenceTime = referenceTime.AddHours(-24);
                 break;
-            case TimeRange.SinceYesterday:
+            case TimeRange.昨日から:
                 referenceTime = referenceTime.AddDays(-1);
                 break;
-            case TimeRange.LastWeek:
+            case TimeRange.先週から:
                 referenceTime = referenceTime.AddDays(-7);
                 break;
         }
@@ -146,9 +146,7 @@ public class ShowNewAssets : EditorWindow
     {
         string[] allAssets = AssetDatabase.GetAllAssetPaths();
 
-        return allAssets
-            .Where(assetPath => IsAssetNewerThan(assetPath, referenceTime))
-            .ToList();
+        return allAssets.Where(assetPath => IsAssetNewerThan(assetPath, referenceTime)).ToList();
     }
 
     private bool IsAssetNewerThan(string assetPath, DateTime referenceTime)
