@@ -22,8 +22,15 @@ public class NewAssetsViewer : EditorWindow
         名前,
     }
 
+    public enum SortDirection
+    {
+        昇順,
+        降順,
+    }
+
     private SortOrder selectedSortOrder = SortOrder.作成日時;
     private TimeRange selectedTimeRange = TimeRange.直近24時間;
+    private SortDirection selectedSortDirection = SortDirection.降順;
     private AssetTreeView treeView;
     private SearchField searchField;
 
@@ -49,10 +56,19 @@ public class NewAssetsViewer : EditorWindow
 
     private void DrawSortOrderSelector()
     {
-        selectedSortOrder = (SortOrder)EditorGUILayout.EnumPopup("並べ替え", selectedSortOrder);
+        EditorGUILayout.BeginHorizontal();
 
-        if (selectedSortOrder != treeView.SortOrder)
+        SortOrder newSortOrder = (SortOrder)
+            EditorGUILayout.EnumPopup("並べ替え", selectedSortOrder);
+        SortDirection newSortDirection = (SortDirection)
+            EditorGUILayout.EnumPopup(selectedSortDirection, GUILayout.Width(60));
+
+        EditorGUILayout.EndHorizontal();
+
+        if (newSortOrder != selectedSortOrder || newSortDirection != selectedSortDirection)
         {
+            selectedSortOrder = newSortOrder;
+            selectedSortDirection = newSortDirection;
             UpdateTreeView();
         }
 
@@ -97,11 +113,17 @@ public class NewAssetsViewer : EditorWindow
 
         if (selectedSortOrder == SortOrder.作成日時)
         {
-            newAssets = newAssets.OrderByDescending(GetAssetCreationTime).ToList();
+            newAssets =
+                selectedSortDirection == SortDirection.昇順
+                    ? newAssets.OrderBy(GetAssetCreationTime).ToList()
+                    : newAssets.OrderByDescending(GetAssetCreationTime).ToList();
         }
         else if (selectedSortOrder == SortOrder.名前)
         {
-            newAssets = newAssets.OrderBy(Path.GetFileName).ToList();
+            newAssets =
+                selectedSortDirection == SortDirection.昇順
+                    ? newAssets.OrderBy(Path.GetFileName).ToList()
+                    : newAssets.OrderByDescending(Path.GetFileName).ToList();
         }
 
         treeView = new AssetTreeView(newAssets);
