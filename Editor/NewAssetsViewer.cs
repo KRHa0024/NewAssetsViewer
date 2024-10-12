@@ -6,7 +6,7 @@ using UnityEditor;
 using UnityEditor.IMGUI.Controls;
 using UnityEngine;
 
-public class ShowNewAssets : EditorWindow
+public class NewAssetsViewer : EditorWindow
 {
     private enum TimeRange
     {
@@ -27,10 +27,10 @@ public class ShowNewAssets : EditorWindow
     private AssetTreeView treeView;
     private SearchField searchField;
 
-    [MenuItem("くろ～は/New Assets Viewer")]
+    [MenuItem("くろ～は/NewAssetsViewer")]
     public static void ShowWindow()
     {
-        GetWindow<ShowNewAssets>("New Assets Viewer");
+        GetWindow<NewAssetsViewer>("NewAssetsViewer");
     }
 
     private void OnEnable()
@@ -172,7 +172,7 @@ public class AssetTreeView : TreeView
 {
     private List<string> assets;
 
-    public ShowNewAssets.SortOrder SortOrder { get; set; }
+    public NewAssetsViewer.SortOrder SortOrder { get; set; }
 
     public AssetTreeView(List<string> assets)
         : base(new TreeViewState())
