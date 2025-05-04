@@ -10,29 +10,49 @@ public class NewAssetsViewer : EditorWindow
 {
     private enum TimeRange
     {
-        直近30分,
-        直近24時間,
-        昨日から,
-        先週から,
+        Last30Minutes,
+        Last24Hours,
+        SinceYesterday,
+        SinceLastWeek,
     }
 
     public enum SortOrder
     {
-        作成日時,
-        名前,
+        CreationDate,
+        Name,
     }
 
     public enum SortDirection
     {
-        昇順,
-        降順,
+        Ascending,
+        Descending,
     }
 
-    private SortOrder selectedSortOrder = SortOrder.作成日時;
-    private TimeRange selectedTimeRange = TimeRange.直近24時間;
-    private SortDirection selectedSortDirection = SortDirection.降順;
+    private SortOrder selectedSortOrder = SortOrder.CreationDate;
+    private TimeRange selectedTimeRange = TimeRange.Last24Hours;
+    private SortDirection selectedSortDirection = SortDirection.Descending;
     private AssetTreeView treeView;
     private SearchField searchField;
+
+    private static readonly Dictionary<TimeRange, string> TimeRangeLabels = new Dictionary<TimeRange, string>
+    {
+        { TimeRange.Last30Minutes, "直近30分" },
+        { TimeRange.Last24Hours, "直近24時間" },
+        { TimeRange.SinceYesterday, "昨日から" },
+        { TimeRange.SinceLastWeek, "先週から" },
+    };
+
+    private static readonly Dictionary<SortOrder, string> SortOrderLabels = new Dictionary<SortOrder, string>
+    {
+        { SortOrder.CreationDate, "作成日時" },
+        { SortOrder.Name, "名前" },
+    };
+
+    private static readonly Dictionary<SortDirection, string> SortDirectionLabels = new Dictionary<SortDirection, string>
+    {
+        { SortDirection.Ascending, "昇順" },
+        { SortDirection.Descending, "降順" },
+    };
 
     [MenuItem("くろ～は/NewAssetsViewer")]
     public static void ShowWindow()
@@ -58,10 +78,15 @@ public class NewAssetsViewer : EditorWindow
     {
         EditorGUILayout.BeginHorizontal();
 
-        SortOrder newSortOrder = (SortOrder)
-            EditorGUILayout.EnumPopup("並べ替え", selectedSortOrder);
-        SortDirection newSortDirection = (SortDirection)
-            EditorGUILayout.EnumPopup(selectedSortDirection, GUILayout.Width(60));
+        var sortOrderOptions = SortOrderLabels.Values.ToArray();
+        int selectedSortOrderIndex = Array.IndexOf(SortOrderLabels.Keys.ToArray(), selectedSortOrder);
+        int newSortOrderIndex = EditorGUILayout.Popup("並べ替え", selectedSortOrderIndex, sortOrderOptions);
+        SortOrder newSortOrder = SortOrderLabels.Keys.ElementAt(newSortOrderIndex);
+
+        var sortDirectionOptions = SortDirectionLabels.Values.ToArray();
+        int selectedSortDirectionIndex = Array.IndexOf(SortDirectionLabels.Keys.ToArray(), selectedSortDirection);
+        int newSortDirectionIndex = EditorGUILayout.Popup(selectedSortDirectionIndex, sortDirectionOptions, GUILayout.Width(60));
+        SortDirection newSortDirection = SortDirectionLabels.Keys.ElementAt(newSortDirectionIndex);
 
         EditorGUILayout.EndHorizontal();
 
@@ -77,7 +102,16 @@ public class NewAssetsViewer : EditorWindow
 
     private void DrawTimeRangeSelector()
     {
-        selectedTimeRange = (TimeRange)EditorGUILayout.EnumPopup("表示する範囲", selectedTimeRange);
+        var timeRangeOptions = TimeRangeLabels.Values.ToArray();
+        int selectedTimeRangeIndex = Array.IndexOf(TimeRangeLabels.Keys.ToArray(), selectedTimeRange);
+        int newTimeRangeIndex = EditorGUILayout.Popup("表示する範囲", selectedTimeRangeIndex, timeRangeOptions);
+        TimeRange newTimeRange = TimeRangeLabels.Keys.ElementAt(newTimeRangeIndex);
+
+        if (newTimeRange != selectedTimeRange)
+        {
+            selectedTimeRange = newTimeRange;
+            UpdateTreeView();
+        }
 
         if (GUILayout.Button("更新！"))
         {
@@ -110,17 +144,17 @@ public class NewAssetsViewer : EditorWindow
         DateTime referenceTime = GetReferenceTime();
         var newAssets = GetNewAssets(referenceTime);
 
-        if (selectedSortOrder == SortOrder.作成日時)
+        if (selectedSortOrder == SortOrder.CreationDate)
         {
             newAssets =
-                selectedSortDirection == SortDirection.昇順
+                selectedSortDirection == SortDirection.Ascending
                     ? newAssets.OrderBy(GetAssetCreationTime).ToList()
                     : newAssets.OrderByDescending(GetAssetCreationTime).ToList();
         }
-        else if (selectedSortOrder == SortOrder.名前)
+        else if (selectedSortOrder == SortOrder.Name)
         {
             newAssets =
-                selectedSortDirection == SortDirection.昇順
+                selectedSortDirection == SortDirection.Ascending
                     ? newAssets.OrderBy(Path.GetFileName).ToList()
                     : newAssets.OrderByDescending(Path.GetFileName).ToList();
         }
@@ -146,16 +180,16 @@ public class NewAssetsViewer : EditorWindow
 
         switch (selectedTimeRange)
         {
-            case TimeRange.直近30分:
+            case TimeRange.Last30Minutes:
                 referenceTime = referenceTime.AddMinutes(-30);
                 break;
-            case TimeRange.直近24時間:
+            case TimeRange.Last24Hours:
                 referenceTime = referenceTime.AddHours(-24);
                 break;
-            case TimeRange.昨日から:
+            case TimeRange.SinceYesterday:
                 referenceTime = referenceTime.AddDays(-1);
                 break;
-            case TimeRange.先週から:
+            case TimeRange.SinceLastWeek:
                 referenceTime = referenceTime.AddDays(-7);
                 break;
         }
