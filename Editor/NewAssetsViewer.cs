@@ -312,6 +312,34 @@ public class AssetTreeView : TreeView
         Selection.activeObject = obj;
         EditorGUIUtility.PingObject(obj);
     }
+    
+    protected override bool CanStartDrag(CanStartDragArgs args)
+    {
+        return true;
+    }
+
+    protected override void SetupDragAndDrop(SetupDragAndDropArgs args)
+    {
+        var draggedItems = args.draggedItemIDs
+            .Select(id => FindItem(id, rootItem) as AssetTreeViewItem)
+            .Where(item => item != null)
+            .ToList();
+
+        if (draggedItems.Count > 0)
+        {
+            DragAndDrop.PrepareStartDrag();
+
+            DragAndDrop.objectReferences = draggedItems
+                .Select(item => AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(item.AssetPath))
+                .ToArray();
+
+            DragAndDrop.paths = draggedItems
+                .Select(item => item.AssetPath)
+                .ToArray();
+
+            DragAndDrop.StartDrag("Dragging Assets");
+        }
+    }
 }
 
 public class AssetTreeViewItem : TreeViewItem
